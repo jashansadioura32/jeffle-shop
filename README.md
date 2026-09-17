@@ -1,3 +1,8 @@
+> [!NOTE]
+> **This is a fork, extended as the demo target for [dbt-sentinel](https://github.com/jashansadioura32/dbt-sentinel).**
+> It is the repo dbt-sentinel raises pull requests against. See
+> [Extensions for dbt-sentinel](#extensions-for-dbt-sentinel) below for what was added and why.
+
 > [!IMPORTANT]
 > This repo is no longer actively maintained. It’s been preserved for continuity and free access. The Jaffle Shop has lived a rich life as dbt’s demo project, but has been superseded by two newer repositories: [`jaffle-shop`](https://github.com/dbt-labs/jaffle-shop), the premier demo project for dbt Cloud, and [`jaffle_shop_duckdb`](https://github.com/dbt-labs/jaffle_shop_duckdb) which supports working locally via DuckDB for those without access to a cloud warehouse. You’re welcome to continue using this repo as an open source resource, just know it will not be actively maintained moving forward.
 
@@ -79,3 +84,54 @@ For more information on dbt:
 - Read the [dbt viewpoint](https://docs.getdbt.com/docs/about/viewpoint).
 - Join the [dbt community](http://community.getdbt.com/).
 ---
+
+---
+
+## Extensions for dbt-sentinel
+
+Upstream `jaffle_shop` is five models with no marts, no exposures and no contracts, so
+it never exercises the signals dbt-sentinel scores on. This fork adds the missing
+surface:
+
+| Added | Why |
+|---|---|
+| `models/marts/fct_order_payments.sql` | An **incremental, contracted** model. Contract enforcement and `unique_key` edits are the highest-severity structural changes. |
+| `models/marts/rpt_customer_revenue.sql` | A reporting model with `access: public`, giving the graph a public-access node. |
+| `models/exposures.yml` | Three exposures with named owners. `BlastRadius.exposures` is the loudest severity signal and had nothing to read without them. |
+| `models/staging/sources.yml` | Declares real sources so source-column changes resolve to a node. |
+| `models/staging/stg_raw_events.sql` | A staging model with PII-ish columns, for the `pii-tagging` policy rule. |
+| `profiles.yml` | Local DuckDB profile, so the project builds with no warehouse credentials. |
+
+### Why `target/manifest.json` is committed
+
+dbt-sentinel reads the model graph from the compiled manifest. Its CI-artifact download
+is not implemented yet, so a manifest committed on the base branch is the only source it
+can currently resolve. `.gitignore` excludes `target/*` by contents and re-includes this
+one file.
+
+**Regenerate it after any model change, or the blast radius is computed against a stale
+graph:**
+
+```bash
+DBT_PROFILES_DIR=. dbt compile
+git add target/manifest.json
+```
+
+### Build it locally
+
+```bash
+pip install dbt-core dbt-duckdb
+DBT_PROFILES_DIR=. dbt seed
+DBT_PROFILES_DIR=. dbt build     # 37 pass, 0 errors
+DBT_PROFILES_DIR=. dbt compile   # regenerates target/manifest.json
+```
+
+### Run dbt-sentinel against a change
+
+```bash
+git diff main...HEAD | python -m dbt_sentinel   --manifest target/manifest.json --diff - --explain --fail-on high
+```
+
+Renaming `customer_id` in `models/staging/stg_orders.sql` should report HIGH, 7
+downstream nodes, 1 contracted model and 3 exposures.
+

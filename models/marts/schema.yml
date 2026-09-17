@@ -1,0 +1,42 @@
+version: 2
+
+# Column data_types are mandatory here: a contract with `enforced: true` fails to
+# compile unless every column declares one.
+
+models:
+  - name: fct_order_payments
+    description: One row per order with its total payment amount.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: integer
+        description: Primary key. Contract-enforced.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_type: integer
+        description: Foreign key to the customer.
+        tests:
+          - not_null
+      - name: order_date
+        data_type: date
+      - name: total_amount
+        data_type: double
+        description: Sum of all payments against this order.
+
+  - name: rpt_customer_revenue
+    description: Per-customer revenue rollup. Consumed by the exec dashboard.
+    config:
+      access: public
+    columns:
+      - name: customer_id
+        description: Primary key.
+        tests:
+          - unique
+          - not_null
+      - name: order_count
+      - name: lifetime_value
+      - name: first_order_date

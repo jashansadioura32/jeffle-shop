@@ -1,0 +1,43 @@
+version: 2
+
+# Upstream jaffle_shop has no exposures, so `BlastRadius.exposures` — the loudest
+# severity signal in report.assess — was never exercised against a real manifest.
+# These give the eval fixtures a genuine consumer-facing surface with owners.
+
+exposures:
+  - name: exec_dashboard
+    label: Executive Revenue Dashboard
+    type: dashboard
+    maturity: high
+    url: https://bi.example.com/dashboards/exec-revenue
+    description: >
+      Board-level revenue reporting. Breaking this is visible to the executive team
+      within one refresh cycle.
+    depends_on:
+      - ref('rpt_customer_revenue')
+    owner:
+      name: Analytics Team
+      email: analytics@example.com
+
+  - name: finance_month_end
+    label: Month-End Finance Close
+    type: analysis
+    maturity: high
+    description: >
+      Feeds the month-end close. Consumes the contracted order-payments mart directly.
+    depends_on:
+      - ref('fct_order_payments')
+    owner:
+      name: Finance Data
+      email: finance-data@example.com
+
+  - name: customer_success_churn
+    label: Churn Risk Model
+    type: ml
+    maturity: medium
+    description: Churn features built off customer lifetime value.
+    depends_on:
+      - ref('customers')
+    owner:
+      name: Data Science
+      email: ds@example.com

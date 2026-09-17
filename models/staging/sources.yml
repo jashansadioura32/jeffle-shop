@@ -1,0 +1,35 @@
+version: 2
+
+# Added for dbt-sentinel eval fixtures. Upstream jaffle_shop loads everything through
+# seeds, which means the compiled manifest contains zero source nodes — so the source
+# branches of blast-radius scoring were never exercised against a real manifest.
+#
+# These declare the seeded tables as sources on the same DuckDB schema the seeds land
+# in. Existing models keep their ref() chain untouched; stg_raw_events below is the only
+# consumer, so adding these cannot change any pre-existing fixture's blast radius.
+
+sources:
+  - name: ecom
+    description: Raw e-commerce tables landed by the ingestion pipeline.
+    schema: main
+    tables:
+      - name: raw_orders
+        description: One row per order, as delivered upstream.
+        columns:
+          - name: id
+            description: Primary key.
+            tests:
+              - not_null
+          - name: user_id
+            description: Foreign key to the customer.
+          - name: order_date
+          - name: status
+
+      - name: raw_payments
+        description: One row per payment attempt.
+        columns:
+          - name: id
+            description: Primary key.
+          - name: order_id
+          - name: payment_method
+          - name: amount

@@ -1,5 +1,21 @@
 
-target/
+# target/ is excluded by contents, not as a directory: git cannot re-include a
+# file inside an ignored directory, and target/manifest.json must stay tracked.
+target/*
+!target/manifest.json
+
 dbt_modules/
 logs/
 **/.DS_Store
+
+# The compiled manifest is committed on purpose. dbt-sentinel resolves the model
+# graph from it, and its CI-artifact download is not implemented yet, so a
+# committed manifest on the base branch is the only source it can currently read.
+# Regenerate with: DBT_PROFILES_DIR=. dbt compile
+
+# Local DuckDB build output; rebuilt by `dbt build`.
+jaffle_shop.duckdb
+.user.yml
+
+# dbt-sentinel TF-IDF vector cache, written when the tool runs against this project.
+.sentinel_cache/

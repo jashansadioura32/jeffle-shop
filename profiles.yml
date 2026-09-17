@@ -1,0 +1,15 @@
+# Local DuckDB profile for dbt-sentinel development.
+#
+# Kept inside the jaffle_shop clone rather than ~/.dbt so it is discoverable and
+# disposable: point DBT_PROFILES_DIR here, and nothing in the user's global dbt
+# config is touched.
+#
+#   DBT_PROFILES_DIR=. dbt seed && DBT_PROFILES_DIR=. dbt compile
+
+jaffle_shop:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: jaffle_shop.duckdb
+      threads: 4
