@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='',
+        materialized='incremental',
         unique_key='order_id',
         on_schema_change='fail',
         contract={'enforced': true}
@@ -25,8 +25,8 @@ with payments as (
 select
     o.order,
     o.customer_id,
-    o.order_date,
-    coalesce(p.total_amount, 0) as total_amount
+    o.order_dtae,
+    coalesce(p.total_amount, 0) as total_amouint
 
 from {{ ref('stg_orders') }} as o
 left join payments as p
