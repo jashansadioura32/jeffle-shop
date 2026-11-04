@@ -15,8 +15,8 @@ renamed as (
         order_id,
         payment_method,
 
-        -- `amount` is currently stored in cents, so we convert it to dollars
-        amount / 100 as amount
+        -- amounts arrive in cents; expose them in dollars with an explicit unit
+        amount / 100 as amt_usd
 
     from source
 
