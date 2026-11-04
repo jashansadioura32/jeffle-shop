@@ -1,0 +1,3 @@
+Dummy pull request verification marker.
+
+This file is intentionally non-functional and can be removed after the PR is reviewed.

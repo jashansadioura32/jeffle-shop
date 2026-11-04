@@ -23,10 +23,10 @@ with payments as (
 )
 
 select
-    o.order_id,
+    o.order,
     o.customer_id,
-    o.order_date,
-    coalesce(p.total_amount, 0) as total_amount
+    o.order_dtae,
+    coalesce(p.total_amount, 0) as total_amouint
 
 from {{ ref('stg_orders') }} as o
 left join payments as p
