@@ -1,0 +1,5 @@
+repo_rules:
+  enabled: true
+  context_files:
+    - dbt_project.yml
+    - models/marts/schema.yml
